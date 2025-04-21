@@ -17,14 +17,12 @@ build:
       - build/libs/*.jar
 
 before_script:
-  - echo "$SSH_PRIVATE_KEY_B64" | base64 -d > $HOME/aesop.pem
-  - chmod 600 $HOME/aesop.pem
+  - echo "$SSH_PRIVATE_KEY_B64" | base64 -d > $HOME/aesop.pem  # SSH 키 디코딩
+  - chmod 600 $HOME/aesop.pem  # 권한 설정
 
 deploy_staging:
   stage: deploy
   script:
-    - echo "$aesop_pem_b64" | base64 -d > $HOME/aesop.pem
-    - chmod 600 $HOME/aesop.pem
     - ssh -o StrictHostKeyChecking=no -i $HOME/aesop.pem ubuntu@43.200.135.130 "echo 배포 성공"
     - echo "Deploying to staging environment..."
     - ssh -o StrictHostKeyChecking=no -i $HOME/aesop.pem $HOST "pkill -f $JAR_NAME || echo 'No running process'"
