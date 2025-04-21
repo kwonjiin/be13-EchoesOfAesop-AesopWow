@@ -1,0 +1,44 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  JAR_NAME: be13-2nd-AesopWow-EchoesOfAesop-0.0.1-SNAPSHOT.jar
+  HOST: ubuntu@43.200.135.130
+  TARGET_PATH: /home/ubuntu
+
+build:
+  stage: build
+  image: gradle:8.5-jdk21
+  script:
+    - gradle build -x test
+  artifacts:
+    paths:
+      - build/libs/*.jar
+
+before_script:
+  - echo "$SSH_PRIVATE_KEY_B64" | base64 -d > $HOME/aesop.pem
+  - chmod 600 $HOME/aesop.pem
+
+deploy_staging:
+  stage: deploy
+  script:
+    - echo "Deploying to staging environment..."
+    - ssh -o StrictHostKeyChecking=no -i $HOME/aesop.pem $HOST "pkill -f $JAR_NAME || echo 'No running process'"
+    - scp -o StrictHostKeyChecking=no -i $HOME/aesop.pem build/libs/$JAR_NAME $HOST:$TARGET_PATH
+    - ssh -o StrictHostKeyChecking=no -i $HOME/aesop.pem $HOST "nohup java -jar $TARGET_PATH/$JAR_NAME > /dev/null 2>&1 &"
+    - echo "✅ Deployment to EC2 complete!"
+  only:
+    - develop
+
+deploy_prod:
+  stage: deploy
+  when: manual
+  script:
+    - echo "Deploying to production environment..."
+    - ssh -o StrictHostKeyChecking=no -i $HOME/aesop.pem $HOST "pkill -f $JAR_NAME || echo 'No running process'"
+    - scp -o StrictHostKeyChecking=no -i $HOME/aesop.pem build/libs/$JAR_NAME $HOST:$TARGET_PATH
+    - ssh -o StrictHostKeyChecking=no -i $HOME/aesop.pem $HOST "nohup java -jar $TARGET_PATH/$JAR_NAME > /dev/null 2>&1 &"
+    - echo "✅ Production deployment complete!"
+  only:
+    - develop
