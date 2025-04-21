@@ -25,7 +25,8 @@ deploy_staging:
   stage: deploy
   script:
     - echo "Deploying to staging environment..."
-    - ssh -o StrictHostKeyChecking=no -i $CI_PROJECT_DIR/aesop.pem ubuntu@43.200.135.130 "echo 배포 성공"
+    - ssh -v -o StrictHostKeyChecking=no -i $CI_PROJECT_DIR/aesop.pem ubuntu@43.200.135.130 "echo 배포 성공"
+    # - ssh -o StrictHostKeyChecking=no -i $CI_PROJECT_DIR/aesop.pem ubuntu@43.200.135.130 "echo 배포 성공"
     - ssh -o StrictHostKeyChecking=no -i $CI_PROJECT_DIR/aesop.pem $HOST "pkill -f $JAR_NAME || echo 'No running process'"
     - scp -o StrictHostKeyChecking=no -i $CI_PROJECT_DIR/aesop.pem build/libs/$JAR_NAME $HOST:$TARGET_PATH
     - ssh -o StrictHostKeyChecking=no -i $CI_PROJECT_DIR/aesop.pem $HOST "nohup java -jar $TARGET_PATH/$JAR_NAME > /dev/null 2>&1 &"
