@@ -35,14 +35,14 @@ pipeline {
     }
 
     environment {
-        DOCKER_IMAGE_NAME = 'hyeonjunnn/aesop-api'
+        DOCKER_IMAGE_NAME = 'jimiin/aesop-api'
         DOCKER_CREDENTIALS_ID = 'dockerhub-access'
     }
 
     stages {
         stage('Gradle Build') {
             steps {
-                container('maven') {
+                container('gradle') {
                     sh './gradlew clean build -x test'
                     sh 'ls -al ./build/libs'
                 }
