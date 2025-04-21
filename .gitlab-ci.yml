@@ -17,18 +17,18 @@ build:
       - build/libs/*.jar
 
 before_script:
-  - echo "HOME directory: $HOME"  # 현재 HOME 디렉토리 확인 (디버깅용)
+  - echo "HOME directory:" "$HOME"  # 현재 HOME 디렉토리 확인 (디버깅용)
   - echo "$SSH_PRIVATE_KEY_B64" | base64 -d > $CI_PROJECT_DIR/aesop.pem  # PEM 파일 저장
   - chmod 600 $CI_PROJECT_DIR/aesop.pem  # 파일 권한 설정
 
 deploy_staging:
   stage: deploy
   script:
-    - ssh -o StrictHostKeyChecking=no -i $HOME/aesop.pem ubuntu@43.200.135.130 "echo 배포 성공"
     - echo "Deploying to staging environment..."
-    - ssh -o StrictHostKeyChecking=no -i $HOME/aesop.pem $HOST "pkill -f $JAR_NAME || echo 'No running process'"
-    - scp -o StrictHostKeyChecking=no -i $HOME/aesop.pem build/libs/$JAR_NAME $HOST:$TARGET_PATH
-    - ssh -o StrictHostKeyChecking=no -i $HOME/aesop.pem $HOST "nohup java -jar $TARGET_PATH/$JAR_NAME > /dev/null 2>&1 &"
+    - ssh -o StrictHostKeyChecking=no -i $CI_PROJECT_DIR/aesop.pem ubuntu@43.200.135.130 "echo 배포 성공"
+    - ssh -o StrictHostKeyChecking=no -i $CI_PROJECT_DIR/aesop.pem $HOST "pkill -f $JAR_NAME || echo 'No running process'"
+    - scp -o StrictHostKeyChecking=no -i $CI_PROJECT_DIR/aesop.pem build/libs/$JAR_NAME $HOST:$TARGET_PATH
+    - ssh -o StrictHostKeyChecking=no -i $CI_PROJECT_DIR/aesop.pem $HOST "nohup java -jar $TARGET_PATH/$JAR_NAME > /dev/null 2>&1 &"
     - echo "✅ Deployment to EC2 complete!"
   only:
     - develop
@@ -38,9 +38,9 @@ deploy_prod:
   when: manual
   script:
     - echo "Deploying to production environment..."
-    - ssh -o StrictHostKeyChecking=no -i $HOME/aesop.pem $HOST "pkill -f $JAR_NAME || echo 'No running process'"
-    - scp -o StrictHostKeyChecking=no -i $HOME/aesop.pem build/libs/$JAR_NAME $HOST:$TARGET_PATH
-    - ssh -o StrictHostKeyChecking=no -i $HOME/aesop.pem $HOST "nohup java -jar $TARGET_PATH/$JAR_NAME > /dev/null 2>&1 &"
+    - ssh -o StrictHostKeyChecking=no -i $CI_PROJECT_DIR/aesop.pem $HOST "pkill -f $JAR_NAME || echo 'No running process'"
+    - scp -o StrictHostKeyChecking=no -i $CI_PROJECT_DIR/aesop.pem build/libs/$JAR_NAME $HOST:$TARGET_PATH
+    - ssh -o StrictHostKeyChecking=no -i $CI_PROJECT_DIR/aesop.pem $HOST "nohup java -jar $TARGET_PATH/$JAR_NAME > /dev/null 2>&1 &"
     - echo "✅ Production deployment complete!"
   only:
     - develop
