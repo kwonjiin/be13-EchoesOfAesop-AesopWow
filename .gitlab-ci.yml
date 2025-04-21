@@ -17,8 +17,9 @@ build:
       - build/libs/*.jar
 
 before_script:
-  - echo "$SSH_PRIVATE_KEY_B64" | base64 -d > $HOME/aesop.pem  # SSH 키 디코딩
-  - chmod 600 $HOME/aesop.pem  # 권한 설정
+  - echo "HOME directory: $HOME"  # 현재 HOME 디렉토리 확인 (디버깅용)
+  - echo "$SSH_PRIVATE_KEY_B64" | base64 -d > $CI_PROJECT_DIR/aesop.pem  # PEM 파일 저장
+  - chmod 600 $CI_PROJECT_DIR/aesop.pem  # 파일 권한 설정
 
 deploy_staging:
   stage: deploy
